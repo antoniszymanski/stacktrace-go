@@ -1,0 +1,12 @@
+version: "2"
+linters:
+  enable:
+    - gocritic
+    - gosec
+  settings:
+    gosec:
+      excludes:
+        - G103
+        - G104
+        - G107
+        - G304
