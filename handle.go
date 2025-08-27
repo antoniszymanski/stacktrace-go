@@ -20,6 +20,12 @@ var output io.Writer
 var mu sync.Mutex
 
 func init() {
+	Enable()
+}
+
+func Enable() {
+	mu.Lock()
+	defer mu.Unlock()
 	noColor = os.Getenv("NO_COLOR") != "" ||
 		(!isatty.IsTerminal(os.Stderr.Fd()) && !isatty.IsCygwinTerminal(os.Stderr.Fd()))
 	if noColor {
@@ -27,6 +33,12 @@ func init() {
 	} else {
 		output = colorable.NewColorableStderr()
 	}
+}
+
+func Disable() {
+	mu.Lock()
+	defer mu.Unlock()
+	output = nil
 }
 
 func Go(fn func(), print func(w io.Writer, r any)) {
@@ -38,7 +50,7 @@ func Go(fn func(), print func(w io.Writer, r any)) {
 
 func Handle(print func(w io.Writer, r any), exit bool) {
 	r := recover()
-	if r == nil {
+	if r == nil || output == nil {
 		return
 	}
 	if exit {
