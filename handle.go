@@ -50,14 +50,17 @@ func Go(fn func(), print func(w io.Writer, r any)) {
 
 func Handle(print func(w io.Writer, r any), exit bool) {
 	r := recover()
-	if r == nil || output == nil {
+	if r == nil {
+		return
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if output == nil {
 		return
 	}
 	if exit {
 		defer os.Exit(2)
 	}
-	mu.Lock()
-	defer mu.Unlock()
 
 	write3(bold+brightCyan, "panic: ", reset)
 	if !noColor {
