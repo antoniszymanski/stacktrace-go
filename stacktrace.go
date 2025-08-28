@@ -8,6 +8,8 @@ import (
 	"iter"
 	"runtime"
 	"strings"
+	"unicode"
+	"unicode/utf8"
 	"unsafe"
 
 	"github.com/antoniszymanski/gopc-go"
@@ -28,11 +30,21 @@ func callStack(skip int) iter.Seq[runtime.Frame] {
 	return func(yield func(runtime.Frame) bool) {
 		for {
 			frame, more := frames.Next()
-			if frame.Function != "runtime.main" &&
-				frame.Function != "runtime.goexit" &&
-				frame.Function != "runtime.newproc" &&
-				frame.Function != "github.com/antoniszymanski/stacktrace-go.Go.func1" &&
-				!yield(frame) || !more {
+			const prefix = "runtime."
+			switch {
+			case len(frame.Function) >= len(prefix)+1 && frame.Function[:len(prefix)] == prefix:
+				r, _ := utf8.DecodeRuneInString(frame.Function[len(prefix):])
+				if !unicode.IsUpper(r) {
+					goto skip
+				}
+			case frame.Function == "github.com/antoniszymanski/stacktrace-go.Go.func1":
+				goto skip
+			}
+			if !yield(frame) {
+				return
+			}
+		skip:
+			if !more {
 				return
 			}
 		}
