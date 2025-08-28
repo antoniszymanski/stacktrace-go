@@ -25,7 +25,9 @@ func callStack(skip int) iter.Seq[runtime.Frame] {
 		}
 		callers = make([]uintptr, 2*len(callers))
 	}
-	callers = append(callers, gopc.Get())
+	if gopc := gopc.Get(); gopc != 0 {
+		callers = append(callers, gopc)
+	}
 	frames := runtime.CallersFrames(callers)
 	return func(yield func(runtime.Frame) bool) {
 		for {
