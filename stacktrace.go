@@ -90,16 +90,11 @@ func splitFuncPath(funcPath string) (pkgPath string, funcName string) {
 }
 
 func unescape(s string) string {
-	var n int
-	for _, b := range []byte(s) {
-		if b == '%' {
-			n++
-		}
-	}
+	n := countString(s, '%')
 	if n == 0 {
 		return s
 	}
-	dst := make([]byte, 0, len(s)-2*n)
+	dst := makeNoZero(len(s) - 2*n)[:0]
 	for i := 0; i < len(s); i++ {
 		b := s[i]
 		if b == '%' && i+2 < len(s) {
@@ -110,6 +105,12 @@ func unescape(s string) string {
 	}
 	return unsafe.String(unsafe.SliceData(dst), len(dst))
 }
+
+//go:linkname countString internal/bytealg.CountString
+func countString(s string, b byte) int
+
+//go:linkname makeNoZero internal/bytealg.MakeNoZero
+func makeNoZero(length int) []byte
 
 func fromHex(b byte) byte {
 	if b >= 'a' {
