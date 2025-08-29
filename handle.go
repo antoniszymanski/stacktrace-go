@@ -82,7 +82,7 @@ func Handle(exit bool, printer func(w io.Writer, r any), predicate func(frame ru
 
 	isFirst := true
 	for frame := range CallStack(2, predicate) {
-		pkgPath, funcName := splitFuncPath(frame.Function)
+		packagePath, functionName := SplitFunctionPath(frame.Function)
 		dir, name := path.Split(frame.File)
 		offset := -1
 		if frame.Func != nil {
@@ -93,8 +93,8 @@ func Handle(exit bool, printer func(w io.Writer, r any), predicate func(frame ru
 		if isFirst {
 			write3(red, "->", reset)
 			write("  at ")
-			write2(bold+brightYellow, pkgPath)
-			write3(bold+brightGreen, funcName, reset)
+			write2(bold+brightYellow, packagePath)
+			write3(bold+brightGreen, functionName, reset)
 			write("\n")
 			write2(red, "->")
 			write("       ")
@@ -106,8 +106,8 @@ func Handle(exit bool, printer func(w io.Writer, r any), predicate func(frame ru
 			write("\n\n")
 		} else {
 			write("    at ")
-			write2(yellow, pkgPath)
-			write2(brightGreen, funcName)
+			write2(yellow, packagePath)
+			write2(brightGreen, functionName)
 			write("\n         ")
 			write2(brightWhite, dir)
 			write2(brightCyan, name)

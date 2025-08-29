@@ -55,11 +55,11 @@ func CallStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runt
 	}
 }
 
-// splitFuncPath splits the function path as formatted in
+// SplitFunctionPath splits the function path as formatted in
 // [runtime.Frame.Function], and returns the package path and
 // function name components.
-func splitFuncPath(funcPath string) (pkgPath string, funcName string) {
-	if funcPath == "" {
+func SplitFunctionPath(functionPath string) (packagePath string, functionName string) {
+	if functionPath == "" {
 		return "", ""
 	}
 	// The last part of a package path will always have "."
@@ -71,22 +71,22 @@ func splitFuncPath(funcPath string) (pkgPath string, funcName string) {
 	// In these cases, the method receiver will be enclosed
 	// in parentheses, so we can treat that as the start of
 	// the function name.
-	if sep := strings.Index(funcPath, ".("); sep >= 0 {
-		pkgPath = unescape(funcPath[:sep+1])
-		funcName = funcPath[sep+1:]
+	if sep := strings.Index(functionPath, ".("); sep >= 0 {
+		packagePath = unescape(functionPath[:sep+1])
+		functionName = functionPath[sep+1:]
 	} else {
 		offset := 1
-		if sep := strings.LastIndexByte(funcPath, '/'); sep >= 0 {
+		if sep := strings.LastIndexByte(functionPath, '/'); sep >= 0 {
 			offset += sep
 		}
-		if sep := strings.IndexByte(funcPath[offset:], '.'); sep >= 0 {
-			pkgPath = unescape(funcPath[:offset+sep+1])
-			funcName = funcPath[offset+sep+1:]
+		if sep := strings.IndexByte(functionPath[offset:], '.'); sep >= 0 {
+			packagePath = unescape(functionPath[:offset+sep+1])
+			functionName = functionPath[offset+sep+1:]
 		} else {
-			funcName = funcPath // function path is invalid
+			functionName = functionPath // function path is invalid
 		}
 	}
-	return pkgPath, funcName
+	return packagePath, functionName
 }
 
 func unescape(s string) string {
