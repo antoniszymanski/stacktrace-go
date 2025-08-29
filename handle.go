@@ -81,7 +81,7 @@ func Handle(exit bool, printer func(w io.Writer, r any), predicate func(frame ru
 	write("\n")
 
 	isFirst := true
-	for frame := range callStack(2, predicate) {
+	for frame := range CallStack(2, predicate) {
 		pkgPath, funcName := splitFuncPath(frame.Function)
 		dir, name := path.Split(frame.File)
 		offset := -1

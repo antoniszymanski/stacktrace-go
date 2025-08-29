@@ -15,7 +15,7 @@ import (
 	"github.com/antoniszymanski/gopc-go"
 )
 
-func callStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runtime.Frame] {
+func CallStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runtime.Frame] {
 	callers := make([]uintptr, 16)
 	for {
 		n := runtime.Callers(2+skip, callers)
