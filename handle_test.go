@@ -18,7 +18,7 @@ func init() {
 	}
 	oldFn := fn
 	fn = func() {
-		defer Handle(nil, false)
+		defer Handle(false, nil, nil)
 		oldFn()
 	}
 	output = io.Discard

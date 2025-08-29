@@ -15,7 +15,7 @@ import (
 	"github.com/antoniszymanski/gopc-go"
 )
 
-func callStack(skip int) iter.Seq[runtime.Frame] {
+func callStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runtime.Frame] {
 	callers := make([]uintptr, 16)
 	for {
 		n := runtime.Callers(2+skip, callers)
@@ -40,6 +40,8 @@ func callStack(skip int) iter.Seq[runtime.Frame] {
 					goto skip
 				}
 			case frame.Function == "github.com/antoniszymanski/stacktrace-go.Go.func1":
+				goto skip
+			case predicate != nil && !predicate(frame):
 				goto skip
 			}
 			if !yield(frame) {

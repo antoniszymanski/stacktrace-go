@@ -45,14 +45,14 @@ func Disable() {
 	enabled = false
 }
 
-func Go(fn func(), print func(w io.Writer, r any)) {
+func Go(f func(), print func(w io.Writer, r any), predicate func(frame runtime.Frame) bool) {
 	go func() {
-		defer Handle(print, true)
-		fn()
+		defer Handle(true, print, predicate)
+		f()
 	}()
 }
 
-func Handle(print func(w io.Writer, r any), exit bool) {
+func Handle(exit bool, printer func(w io.Writer, r any), predicate func(frame runtime.Frame) bool) {
 	r := recover()
 	if r == nil {
 		return
@@ -70,8 +70,8 @@ func Handle(print func(w io.Writer, r any), exit bool) {
 	if !noColor {
 		write(bold + brightBlue)
 	}
-	if print != nil {
-		print(output, r)
+	if printer != nil {
+		printer(output, r)
 	} else {
 		fmt.Fprint(output, r) //nolint:errcheck
 	}
@@ -81,7 +81,7 @@ func Handle(print func(w io.Writer, r any), exit bool) {
 	write("\n")
 
 	isFirst := true
-	for frame := range callStack(2) {
+	for frame := range callStack(2, predicate) {
 		pkgPath, funcName := splitFuncPath(frame.Function)
 		dir, name := path.Split(frame.File)
 		offset := -1
