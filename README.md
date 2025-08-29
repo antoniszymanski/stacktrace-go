@@ -28,6 +28,6 @@ goos: linux
 goarch: amd64
 pkg: github.com/antoniszymanski/stacktrace-go
 cpu: Intel(R) Core(TM) i7-7700HQ CPU @ 2.80GHz
-BenchmarkHandle-8   	   94354	     12849 ns/op	     680 B/op	       7 allocs/op
+BenchmarkHandle-8   	   96330	     12771 ns/op	     688 B/op	       7 allocs/op
 PASS
 ```
