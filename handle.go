@@ -52,7 +52,7 @@ func Go(f func(), print func(w io.Writer, r any), predicate func(frame runtime.F
 	}()
 }
 
-func Handle(exit bool, printer func(w io.Writer, r any), predicate func(frame runtime.Frame) bool) {
+func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runtime.Frame) bool) {
 	r := recover()
 	if r == nil {
 		return
@@ -70,8 +70,8 @@ func Handle(exit bool, printer func(w io.Writer, r any), predicate func(frame ru
 	if !noColor {
 		write(bold + brightBlue)
 	}
-	if printer != nil {
-		printer(output, r)
+	if print != nil {
+		print(output, r)
 	} else {
 		fmt.Fprint(output, r) //nolint:errcheck
 	}
