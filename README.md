@@ -6,6 +6,7 @@ An alternative to Go's native stack trace, that:
 - is [fast](#benchmark)
 - is thread-safe
 - shows go statement that created the panicking goroutine
+- shows the number of lines from the start of the function to the current line
 - allows to customize the printing of panic values
 - supports [NO_COLOR](https://no-color.org) environment variable
 
