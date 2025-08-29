@@ -121,7 +121,7 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 }
 
 func writeOffset(prefix string, offset int) {
-	if offset == -1 {
+	if offset < 0 {
 		goto reset
 	}
 	if !noColor {
