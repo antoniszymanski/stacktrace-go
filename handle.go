@@ -8,6 +8,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"runtime"
 	"sync"
 	"unsafe"
 
@@ -15,30 +16,33 @@ import (
 	"github.com/mattn/go-isatty"
 )
 
-var noColor bool
-var output io.Writer
-var mu sync.Mutex
+var (
+	noColor bool
+	output  io.Writer
+	enabled = true
+	mu      sync.Mutex
+)
 
 func init() {
-	Enable()
-}
-
-func Enable() {
-	mu.Lock()
-	defer mu.Unlock()
-	noColor = os.Getenv("NO_COLOR") != "" ||
-		(!isatty.IsTerminal(os.Stderr.Fd()) && !isatty.IsCygwinTerminal(os.Stderr.Fd()))
-	if noColor {
+	fd := os.Stderr.Fd()
+	noColor = os.Getenv("NO_COLOR") != "" || (!isatty.IsTerminal(fd) && !isatty.IsCygwinTerminal(fd))
+	if runtime.GOOS != "windows" || noColor {
 		output = os.Stderr
 	} else {
 		output = colorable.NewColorableStderr()
 	}
 }
 
+func Enable() {
+	mu.Lock()
+	defer mu.Unlock()
+	enabled = true
+}
+
 func Disable() {
 	mu.Lock()
 	defer mu.Unlock()
-	output = nil
+	enabled = false
 }
 
 func Go(fn func(), print func(w io.Writer, r any)) {
@@ -55,7 +59,7 @@ func Handle(print func(w io.Writer, r any), exit bool) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
-	if output == nil {
+	if !enabled {
 		return
 	}
 	if exit {
