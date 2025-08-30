@@ -67,17 +67,13 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 	}
 
 	write3(bold+brightCyan, "panic: ", reset)
-	if !noColor {
-		write(bold + brightBlue)
-	}
+	writeColor(bold + brightBlue)
 	if print != nil {
 		print(output, r)
 	} else {
 		fmt.Fprint(output, r) //nolint:errcheck
 	}
-	if !noColor {
-		write(reset)
-	}
+	writeColor(reset)
 	write("\n")
 
 	isFirst := true
@@ -94,7 +90,8 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 			write3(red, "->", reset)
 			write("  at ")
 			write2(bold+brightYellow, packagePath)
-			write3(bold+brightGreen, functionName, reset)
+			write2(bold+brightGreen, functionName)
+			writeOffset(bold+brightBlue, offset)
 			write("\n")
 			write2(red, "->")
 			write("       ")
@@ -102,18 +99,19 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 			write2(bold+brightCyan, name)
 			write2(bold+brightGreen, ":")
 			writeInt(frame.Line)
-			writeOffset(bold+brightBlue, offset)
+			writeColor(reset)
 			write("\n\n")
 		} else {
 			write("    at ")
 			write2(yellow, packagePath)
 			write2(brightGreen, functionName)
+			writeOffset(brightBlue, offset)
 			write("\n         ")
 			write2(brightWhite, dir)
 			write2(brightCyan, name)
 			write2(brightGreen, ":")
 			writeInt(frame.Line)
-			writeOffset(brightBlue, offset)
+			writeColor(reset)
 			write("\n")
 		}
 		isFirst = false
@@ -124,16 +122,10 @@ func writeOffset(prefix string, offset int) {
 	if offset < 0 {
 		goto reset
 	}
-	if !noColor {
-		write(prefix)
-	}
-	write("(")
+	write2(prefix, "+")
 	writeInt(offset)
-	write(")")
 reset:
-	if !noColor {
-		write(reset)
-	}
+	writeColor(reset)
 }
 
 func write[Bytes ~[]byte | ~string](b Bytes) {
@@ -148,21 +140,21 @@ func noEscape[P ~*E, E any](p P) P {
 	return P(unsafe.Pointer(x ^ 0))
 }
 
-func write2(prefix, s string) {
+func writeColor(s string) {
 	if !noColor {
-		write(prefix)
+		write(s)
 	}
+}
+
+func write2(prefix, s string) {
+	writeColor(prefix)
 	write(s)
 }
 
 func write3(prefix, s, suffix string) {
-	if !noColor {
-		write(prefix)
-	}
+	writeColor(prefix)
 	write(s)
-	if !noColor {
-		write(suffix)
-	}
+	writeColor(suffix)
 }
 
 func writeInt(n int) {
