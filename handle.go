@@ -73,8 +73,7 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 	} else {
 		fmt.Fprint(output, r) //nolint:errcheck
 	}
-	writeColor(reset)
-	write("\n")
+	write2(reset, "\n")
 
 	isFirst := true
 	for frame := range CallStack(2, predicate) {
@@ -101,8 +100,7 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 			write2(bold+brightCyan, name)
 			write2(bold+brightGreen, ":")
 			writeInt(frame.Line)
-			writeColor(reset)
-			write("\n\n")
+			write2(reset, "\n\n")
 		} else {
 			write("    at ")
 			write2(yellow, packagePath)
@@ -113,8 +111,7 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 			write2(brightCyan, name)
 			write2(brightGreen, ":")
 			writeInt(frame.Line)
-			writeColor(reset)
-			write("\n")
+			write2(reset, "\n")
 		}
 		isFirst = false
 	}
