@@ -82,8 +82,10 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 		dir, name := path.Split(frame.File)
 		offset := -1
 		if frame.Func != nil {
-			_, entry := frame.Func.FileLine(frame.Func.Entry())
-			offset = frame.Line - entry
+			funcFile, funcLine := frame.Func.FileLine(frame.Func.Entry())
+			if funcFile == frame.File && frame.Line >= funcLine {
+				offset = frame.Line - funcLine
+			}
 		}
 
 		if isFirst {
