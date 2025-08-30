@@ -10,6 +10,8 @@ An alternative to Go's native stack trace, that:
 - allows to customize the printing of panic values
 - supports [NO_COLOR](https://no-color.org) environment variable
 
+Tip: use -trimpath build flag to get shorter stack traces
+
 Documentation: https://pkg.go.dev/github.com/antoniszymanski/stacktrace-go
 
 ### Installation:
