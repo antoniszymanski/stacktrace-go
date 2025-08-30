@@ -133,11 +133,10 @@ func write[Bytes ~[]byte | ~string](b Bytes) {
 	output.Write(*noEscape(&p)) //nolint:errcheck
 }
 
-//nolint:all
 //go:nosplit
 func noEscape[P ~*E, E any](p P) P {
 	x := uintptr(unsafe.Pointer(p))
-	return P(unsafe.Pointer(x ^ 0))
+	return P(unsafe.Pointer(x ^ 0)) //nolint:all
 }
 
 func writeColor(s string) {
@@ -175,7 +174,6 @@ func writeInt(n int) {
 		i--
 		val = q
 	}
-	// val < 10
-	buf[i] = byte('0' + val)
-	write(buf[i:]) //nolint:errcheck
+	buf[i] = byte('0' + val) // val < 10
+	write(buf[i:])
 }
