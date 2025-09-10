@@ -76,7 +76,7 @@ func Handle(exit bool, print func(w io.Writer, r any), predicate func(frame runt
 	write2(reset, "\n")
 
 	isFirst := true
-	for frame := range CallStack(2, predicate) {
+	for frame := range CallStack(1, predicate) {
 		packagePath, functionName := SplitFunctionPath(frame.Function)
 		dir, name := path.Split(frame.File)
 		offset := -1

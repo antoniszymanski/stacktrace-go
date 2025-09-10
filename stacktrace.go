@@ -18,7 +18,7 @@ import (
 func CallStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runtime.Frame] {
 	pcs := make([]uintptr, 16)
 	for {
-		n := callers(2+skip, pcs)
+		n := callers(skip+1, pcs)
 		if n < len(pcs) {
 			pcs = pcs[:n]
 			break
