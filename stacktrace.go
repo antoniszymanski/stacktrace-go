@@ -16,19 +16,19 @@ import (
 )
 
 func CallStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runtime.Frame] {
-	callers := make([]uintptr, 16)
+	pcs := make([]uintptr, 16)
 	for {
-		n := runtime.Callers(2+skip, callers)
-		if n < len(callers) {
-			callers = callers[:n]
+		n := callers(2+skip, pcs)
+		if n < len(pcs) {
+			pcs = pcs[:n]
 			break
 		}
-		callers = make([]uintptr, 2*len(callers))
+		pcs = make([]uintptr, 2*len(pcs))
 	}
 	if gopc := gopc.Get(); gopc != 0 {
-		callers = append(callers, gopc)
+		pcs = append(pcs, gopc)
 	}
-	frames := runtime.CallersFrames(callers)
+	frames := runtime.CallersFrames(pcs)
 	return func(yield func(runtime.Frame) bool) {
 		for {
 			frame, more := frames.Next()
@@ -54,6 +54,9 @@ func CallStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runt
 		}
 	}
 }
+
+//go:linkname callers runtime.callers
+func callers(skip int, pcs []uintptr) int
 
 // SplitFunctionPath splits the function path as formatted in
 // [runtime.Frame.Function], and returns the package path and
