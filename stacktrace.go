@@ -93,7 +93,7 @@ func SplitFunctionPath(functionPath string) (packagePath string, functionName st
 }
 
 func unescape(s string) string {
-	n := countString(s, '%')
+	n := strings.Count(s, "%")
 	if n == 0 {
 		return s
 	}
@@ -108,9 +108,6 @@ func unescape(s string) string {
 	}
 	return unsafe.String(unsafe.SliceData(dst), len(dst))
 }
-
-//go:linkname countString internal/bytealg.CountString
-func countString(s string, b byte) int
 
 //go:linkname makeNoZero internal/bytealg.MakeNoZero
 func makeNoZero(length int) []byte
