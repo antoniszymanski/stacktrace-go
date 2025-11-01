@@ -123,7 +123,7 @@ func unescape(s string) string {
 	for i := 0; i < len(s); i++ {
 		b := s[i]
 		if b == '%' && i+2 < len(s) {
-			b = fromHex(s[i+1])<<4 | fromHex(s[i+2])
+			b = unhex(s[i+1])<<4 | unhex(s[i+2])
 			i += 2
 		}
 		dst = append(dst, b)
@@ -134,9 +134,6 @@ func unescape(s string) string {
 //go:linkname makeNoZero internal/bytealg.MakeNoZero
 func makeNoZero(length int) []byte
 
-func fromHex(b byte) byte {
-	if b >= 'a' {
-		return 10 + b - 'a'
-	}
-	return b - '0'
+func unhex(b byte) byte {
+	return 9*(b>>6) + (b & 15)
 }
