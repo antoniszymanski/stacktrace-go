@@ -5,13 +5,14 @@ package stacktrace
 
 import (
 	"io"
+	"runtime"
 	"testing"
 )
 
 var fn func()
 
 func init() {
-	fn = func() { panic("fn") }
+	fn = func() { (*runtime.Func)(nil).Entry() }
 	for range 16 {
 		oldFn := fn
 		fn = func() { oldFn() }

@@ -1,5 +1,6 @@
 // SPDX-FileCopyrightText: 2025 Antoni Szymański
 // SPDX-FileCopyrightText: 2018-2019 Elasticsearch B.V.
+// SPDX-FileCopyrightText: 2009 The Go Authors
 // SPDX-License-Identifier: MPL-2.0
 
 package stacktrace
@@ -8,8 +9,6 @@ import (
 	"iter"
 	"runtime"
 	"strings"
-	"unicode"
-	"unicode/utf8"
 	"unsafe"
 
 	"github.com/antoniszymanski/gopc-go"
@@ -32,16 +31,9 @@ func CallStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runt
 	return func(yield func(runtime.Frame) bool) {
 		for {
 			frame, more := frames.Next()
-			const prefix = "runtime."
-			switch {
-			case len(frame.Function) >= len(prefix)+1 && frame.Function[:len(prefix)] == prefix:
-				r, _ := utf8.DecodeRuneInString(frame.Function[len(prefix):])
-				if !unicode.IsUpper(r) {
-					goto skip
-				}
-			case frame.Function == "github.com/antoniszymanski/stacktrace-go.Go.func1":
-				goto skip
-			case predicate != nil && !predicate(frame):
+			if isUnexportedRuntime(frame.Function) ||
+				frame.Function == "github.com/antoniszymanski/stacktrace-go.Go.func1" ||
+				(predicate != nil && !predicate(frame)) {
 				goto skip
 			}
 			if !yield(frame) {
@@ -57,6 +49,36 @@ func CallStack(skip int, predicate func(frame runtime.Frame) bool) iter.Seq[runt
 
 //go:linkname callers runtime.callers
 func callers(skip int, pcs []uintptr) int
+
+// isUnexportedRuntime reports whether name is an unexported runtime function.
+//
+// https://github.com/golang/go/blob/release-branch.go1.25/src/runtime/traceback.go#L1166
+func isUnexportedRuntime(name string) bool {
+	// Check and remove package qualifier.
+	name, found := strings.CutPrefix(name, "runtime.")
+	if !found {
+		return false
+	}
+	rcvr := ""
+
+	// Extract receiver type, if any.
+	// For example, runtime.(*Func).Entry
+	i := len(name) - 1
+	for i >= 0 && name[i] != '.' {
+		i--
+	}
+	if i >= 0 {
+		rcvr = name[:i]
+		name = name[i+1:]
+		// Remove parentheses and star for pointer receivers.
+		if len(rcvr) >= 3 && rcvr[0] == '(' && rcvr[1] == '*' && rcvr[len(rcvr)-1] == ')' {
+			rcvr = rcvr[2 : len(rcvr)-1]
+		}
+	}
+
+	// Unexported functions and unexported methods on unexported types.
+	return len(name) == 0 || name[0] < 'A' || name[0] > 'Z' || (len(rcvr) > 0 && (rcvr[0] < 'A' || rcvr[0] > 'Z'))
+}
 
 // SplitFunctionPath splits the function path as formatted in
 // [runtime.Frame.Function], and returns the package path and
