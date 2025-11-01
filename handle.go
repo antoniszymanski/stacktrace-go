@@ -20,7 +20,7 @@ var (
 	noColor bool
 	output  io.Writer
 	enabled = true
-	mu      sync.Mutex
+	mu      sync.Mutex // guards output and enabled
 )
 
 func init() {
