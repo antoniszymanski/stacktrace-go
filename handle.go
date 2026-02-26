@@ -158,8 +158,10 @@ func writeInt(n int) {
 		write("0")
 		return
 	}
-	val := uint(n)
-	if n < 0 {
+	var val uint
+	if n > 0 {
+		val = uint(n)
+	} else {
 		write("-")
 		val = uint(-n)
 	}
@@ -167,10 +169,10 @@ func writeInt(n int) {
 	i := len(buf) - 1
 	for val >= 10 {
 		q := val / 10
-		buf[i] = byte('0' + val - q*10)
+		buf[i] = byte('0' + val - q*10) //nolint:gosec // G115
 		i--
 		val = q
 	}
-	buf[i] = byte('0' + val) // val < 10
+	buf[i] = byte('0' + val) //nolint:gosec // G115 // val < 10
 	write(buf[i:])
 }
