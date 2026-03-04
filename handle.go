@@ -169,10 +169,10 @@ func writeInt(n int) {
 	i := len(buf) - 1
 	for val >= 10 {
 		q := val / 10
-		buf[i] = byte('0' + val - q*10) //nolint:gosec // G115
+		buf[i] = byte('0' + val - q*10) //#nosec G115
 		i--
 		val = q
 	}
-	buf[i] = byte('0' + val) //nolint:gosec // G115 // val < 10
+	buf[i] = byte('0' + val) //#nosec G115 // val < 10
 	write(buf[i:])
 }
