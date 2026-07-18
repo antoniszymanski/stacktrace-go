@@ -3,6 +3,8 @@
 // SPDX-FileCopyrightText: 2009 The Go Authors
 // SPDX-License-Identifier: MPL-2.0
 
+//go:build gc
+
 package stacktrace
 
 import (
